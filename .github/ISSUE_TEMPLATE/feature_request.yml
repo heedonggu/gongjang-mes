@@ -1,0 +1,19 @@
+name: 기능 제안
+description: 현장에서 필요한 기능이나 불편한 점
+labels: [enhancement]
+body:
+  - type: textarea
+    id: pain
+    attributes:
+      label: 현장의 어떤 불편이 있나요
+      description: 지금은 어떻게 하고 있고, 무엇이 번거롭거나 자주 틀리나요?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: 이런 모습이면 좋겠어요
+  - type: input
+    id: industry
+    attributes:
+      label: 업종과 직원 수 (선택)

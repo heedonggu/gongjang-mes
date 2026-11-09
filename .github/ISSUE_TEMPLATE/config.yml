@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 상업적 이용·공동 개발 문의
+    url: https://github.com/heedonggu/gongjang-mes/discussions
+    about: 회사에서 쓰거나 판매하고 싶다면 Discussions에 글을 남겨 주세요 (COMMERCIAL.md 참고)

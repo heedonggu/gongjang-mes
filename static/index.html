@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>공장 한 창</title>
+<style>
+:root{--bg:#f4f5f7;--surface:#fff;--ink:#16191f;--muted:#5d6675;--line:#dfe3ea;--brand:#1d4ed8;--brand-ink:#fff;--soft:#e8eefc;--bad:#c2262e;--bad-soft:#fdeaea;--warn:#a85d00;--warn-soft:#fff1de;--ok:#13783c;--ok-soft:#e3f5ea;--r:10px}
+@media (prefers-color-scheme:dark){:root{--bg:#12151a;--surface:#1b2028;--ink:#eceff4;--muted:#9aa4b5;--line:#2d3542;--brand:#6c93ff;--brand-ink:#0b1020;--soft:#212b47;--bad:#ff7a82;--bad-soft:#3a1f22;--warn:#f0b05a;--warn-soft:#38291408;--ok:#58d38a;--ok-soft:#173326}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif}
+h1,h2,h3{margin:0;line-height:1.25}h2{font-size:20px;margin-bottom:12px}h3{font-size:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;min-height:44px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface)}
+button.pri{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:700}
+button.bad{color:var(--bad);border-color:var(--bad)}
+button.sm{min-height:34px;padding:0 10px;font-size:14px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+input,select,textarea{width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+input[type=checkbox]{width:22px;min-height:22px;accent-color:var(--brand)}
+label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+a{color:var(--brand)}
+.shell{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+nav{background:var(--surface);border-right:1px solid var(--line);padding:16px 10px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+nav .co{font-weight:800;font-size:18px;padding:4px 10px 14px}
+nav button{text-align:left;border:0;background:none;min-height:42px}
+nav button[aria-current=page]{background:var(--soft);color:var(--brand);font-weight:700}
+nav .who{margin-top:auto;font-size:14px;color:var(--muted);padding:8px 10px}
+main{padding:20px;max-width:1100px;width:100%}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.bar .sp{flex:1}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.card,.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card .n{font-size:28px;font-weight:800}.card.bad{border-color:var(--bad);background:var(--bad-soft)}.card.warn{border-color:var(--warn)}
+.muted{color:var(--muted);font-size:14px}
+.row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}.row:first-child{border-top:0}
+.row .grow{flex:1;min-width:150px}
+.tag{display:inline-block;padding:1px 9px;border-radius:99px;font-size:13px;background:var(--soft);color:var(--brand);white-space:nowrap}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}.tag.ok{background:var(--ok-soft);color:var(--ok)}.tag.warn{background:var(--warn-soft);color:var(--warn)}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}th{font-size:14px;color:var(--muted)}td.n,th.n{text-align:right}
+.scroll{overflow-x:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips button{min-height:36px;padding:0 12px;font-size:14px}.chips button.cur{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}.chips button.past{background:var(--soft)}
+.kan{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--soft);border-radius:var(--r);padding:10px}.col h3{margin-bottom:8px}
+.job{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}.job.late{border-color:var(--bad);border-width:2px}
+.job .t{font-size:18px;font-weight:700}.job button{width:100%;margin-top:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.cal>div{background:var(--surface);min-height:84px;padding:4px;font-size:13px;min-width:0}.cal .h{min-height:0;text-align:center;color:var(--muted);padding:6px}.cal .d{color:var(--muted)}.cal .today{background:var(--soft)}.cal .out{opacity:.45}
+.chip{display:block;width:100%;min-height:22px;padding:0 5px;margin-top:2px;border:0;border-radius:5px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--soft);color:var(--brand)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.hist{display:flex;align-items:flex-end;gap:3px;height:160px;border-bottom:1px solid var(--line);position:relative;min-width:620px}
+.hist .b{flex:1;background:var(--brand);border-radius:3px 3px 0 0;min-height:1px}.hist .b.we{background:var(--line)}.hist .b.over{background:var(--bad)}
+.hist .cap{position:absolute;left:0;right:0;border-top:2px dashed var(--warn)}
+.axis{display:flex;gap:3px;min-width:620px;font-size:11px;color:var(--muted)}.axis span{flex:1;text-align:center}
+.gantt{min-width:700px}.gr{display:grid;grid-template-columns:150px 1fr;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--line)}
+.gg{display:grid;grid-auto-flow:column;position:relative;height:26px}.gb{background:var(--brand);border-radius:5px;height:18px;align-self:center}.gb.late{background:var(--bad)}
+.ovl{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto;z-index:10}
+.modal{background:var(--surface);border-radius:14px;padding:20px;width:100%;max-width:640px;margin:auto}
+.modal .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;gap:6px;align-items:center}
+#toast div{background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;max-width:90vw}#toast .bad{background:var(--bad);color:#fff}
+.center{max-width:420px;margin:8vh auto;padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+@media (max-width:800px){
+ .shell{display:block}
+ nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;overflow-x:auto;padding:6px;border-right:0;border-top:1px solid var(--line);z-index:5;gap:2px}
+ nav .co,nav .who{display:none}nav button{text-align:center;white-space:nowrap;min-height:48px;padding:0 12px}
+ main{padding:14px 14px 90px}.grid2{grid-template-columns:1fr}.kan{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr}.cal>div{min-height:60px}.chip{font-size:11px}
+ .topbar{display:flex!important}
+}
+.topbar{display:none;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=(s,el=document)=>el.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';
+const D=s=>new Date(s+'T00:00:00Z');
+const dd=(a,b)=>Math.round((D(b)-D(a))/864e5);
+const addDays=(s,n)=>new Date(D(s).getTime()+n*864e5).toISOString().slice(0,10);
+const md=s=>s?s.slice(5).replace('-','/'):'';
+const ROLE={admin:'관리자',office:'사무',field:'현장'};
+let me=null,cfg={},T='',tab='',cal=null;
+
+async function api(m,p,b){
+  const r=await fetch(p,{method:m,headers:b!==undefined?{'Content-Type':'application/json'}:{},body:b!==undefined?JSON.stringify(b):undefined});
+  const d=(r.headers.get('content-type')||'').includes('json')?await r.json():await r.blob();
+  if(!r.ok){if(r.status===401&&me){me=null;boot()}const e=new Error(d.error||'오류가 났습니다');e.code=d.code;e.status=r.status;throw e}
+  return d;
+}
+function toast(msg,bad){const t=document.createElement('div');if(bad)t.className='bad';t.textContent=msg;$('#toast').append(t);setTimeout(()=>t.remove(),bad?5000:2500)}
+const run=async f=>{try{return await f()}catch(e){toast(e.message,true)}};
+
+/* ---- 모달·폼 ---- */
+function modal(html,mount){
+  const o=document.createElement('div');o.className='ovl';o.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  const close=()=>{o.remove();document.removeEventListener('keydown',esc_)};
+  const esc_=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',esc_);
+  o.addEventListener('mousedown',e=>{if(e.target===o)close()});
+  document.body.append(o);o.close=close;mount&&mount(o,close);
+  const f=$('input,select,textarea',o);f&&f.focus();return o;
+}
+function fieldHtml(f,v){
+  const val=v??f.def??'';
+  let inp;
+  if(f.type==='select')inp=`<select name="${f.k}">${f.opts.map(o=>`<option value="${esc(o.v??o)}" ${String(o.v??o)===String(val)?'selected':''}>${esc(o.t??o)}</option>`).join('')}</select>`;
+  else if(f.type==='check')return `<label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" name="${f.k}" ${val?'checked':''}>${esc(f.label)}</label>`;
+  else if(f.type==='area')inp=`<textarea name="${f.k}" rows="3">${esc(val)}</textarea>`;
+  else inp=`<input name="${f.k}" type="${f.type||'text'}" value="${esc(val)}" ${f.req?'required':''} ${f.ph?`placeholder="${esc(f.ph)}"`:''} ${f.type==='number'?'step="any" min="0"':''} autocomplete="off">`;
+  return `<label>${esc(f.label)}${f.req?' *':''}</label>${inp}`;
+}
+function readForm(form,fields){
+  const o={};for(const f of fields){const el=form.elements[f.k];o[f.k]=f.type==='check'?el.checked:el.value}return o;
+}
+function formModal(title,fields,init,onSubmit,okText='저장'){
+  modal(`<h3>${esc(title)}</h3><form>${fields.map(f=>fieldHtml(f,init?.[f.k])).join('')}<div class="acts"><button type="button" class="cancel">취소</button><button class="pri">${okText}</button></div></form>`,(o,close)=>{
+    $('.cancel',o).onclick=close;
+    $('form',o).onsubmit=async e=>{e.preventDefault();const ok=await run(async()=>{await onSubmit(readForm(e.target,fields));return true});if(ok){close()}};
+  });
+}
+const confirmBox=msg=>new Promise(res=>modal(`<p>${esc(msg)}</p><div class="acts"><button class="no">아니오</button><button class="pri yes">예</button></div>`,(o,close)=>{$('.no',o).onclick=()=>{close();res(false)};$('.yes',o).onclick=()=>{close();res(true)}}));
+
+/* ---- 시작·로그인 ---- */
+async function boot(){
+  const st=await api('GET','/api/status').catch(()=>null);
+  if(!st){$('#root').innerHTML='<div class="center"><h2>서버에 연결할 수 없습니다</h2><p class="muted">서버 PC에서 실행.bat 이 켜져 있는지 확인하세요.</p></div>';return}
+  if(st.setup_needed)return renderSetup(st);
+  me=st.user;if(!me)return renderLogin(st.company);
+  cfg=await api('GET','/api/config');tab=location.hash.slice(1)||(me.role==='field'?'field':'today');shell();
+}
+function renderLogin(co){
+  $('#root').innerHTML=`<form class="center box"><h2>${esc(co||'공장 한 창')}</h2><label>이름</label><input name="name" required autocomplete="username"><label>PIN</label><input name="pin" type="password" required autocomplete="current-password"><div class="acts" style="margin-top:16px"><button class="pri" style="width:100%">로그인</button></div></form>`;
+  $('form').onsubmit=e=>{e.preventDefault();run(async()=>{await api('POST','/api/login',{name:e.target.name.value,pin:e.target.pin.value});boot()})};
+}
+function renderSetup(st){
+  $('#root').innerHTML=`<form class="center box"><h2>처음 설정</h2><p class="muted">회사 정보와 관리자 계정을 만듭니다. 한 번만 하면 됩니다.</p>
+  <label>회사명 *</label><input name="company" required><label>업종 *</label><select name="preset">${st.presets.map(p=>`<option value="${esc(p.key)}">${esc(p.label)}</option>`).join('')}</select>
+  <label>관리자 이름 *</label><input name="name" required><label>PIN (4자리 이상) *</label><input name="pin" type="password" minlength="4" required>
+  <div class="acts" style="margin-top:16px"><button class="pri" style="width:100%">시작하기</button></div></form>`;
+  $('form').onsubmit=e=>{e.preventDefault();const f=e.target;run(async()=>{await api('POST','/api/setup',{company:f.company.value,preset:f.preset.value,name:f.name.value,pin:f.pin.value});boot()})};
+}
+
+/* ---- 틀 ---- */
+const TABS=[['today','오늘'],['quotes','견적','o'],['orders','주문'],['field','현장'],['cal','캘린더'],['load','부하'],['tasks','업무'],['base','거래처·품목','o'],['fb','개선요청'],['set','설정','a']];
+function shell(){
+  const ok=t=>!t[2]||(t[2]==='o'&&me.role!=='field')||(t[2]==='a'&&me.role==='admin');
+  const tabs=TABS.filter(ok);if(!tabs.some(t=>t[0]===tab))tab='today';location.hash=tab;
+  $('#root').innerHTML=`<div class="topbar"><b>${esc(cfg.company)}</b><span class="muted">${esc(me.name)} · ${ROLE[me.role]} <button class="sm" id="out2">로그아웃</button></span></div>
+  <div class="shell"><nav aria-label="메뉴"><div class="co">${esc(cfg.company)}</div>${tabs.map(t=>`<button data-t="${t[0]}" ${t[0]===tab?'aria-current="page"':''}>${t[1]}</button>`).join('')}<div class="who">${esc(me.name)} · ${ROLE[me.role]}<br><button class="sm" id="out">로그아웃</button></div></nav><main id="main"></main></div>`;
+  document.querySelectorAll('nav [data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;location.hash=tab;shell()});
+  for(const id of ['#out','#out2'])$(id).onclick=()=>run(async()=>{await api('POST','/api/logout',{});me=null;boot()});
+  run(()=>VIEWS[tab]());
+}
+const main=html=>{$('#main').innerHTML=html};
+const lateTag=(o)=>o.done_at?'<span class="tag ok">완료</span>':o.due<T?'<span class="tag bad">지연</span>':o.due<=addDays(T,3)?'<span class="tag warn">임박</span>':'';
+
+/* ---- 오늘 ---- */
+async function today(){
+  const d=await api('GET','/api/today');T=d.today;
+  const orow=o=>`<div class="row"><div class="grow"><b>${esc(o.no)}</b> ${esc(o.customer)}<div class="muted">납기 ${esc(o.due)} · ${esc(o.stage)}</div></div><button class="sm" data-o="${o.id}">열기</button></div>`;
+  main(`<h2>오늘 ${esc(T)}</h2><div class="cards">
+   <div class="card ${d.late.length?'bad':''}"><div class="muted">납기 지연</div><div class="n">${d.late.length}건</div></div>
+   <div class="card ${d.soon.length?'warn':''}"><div class="muted">3일 안 출하</div><div class="n">${d.soon.length}건</div></div>
+   <div class="card"><div class="muted">진행 중 주문</div><div class="n">${d.open_count}건</div></div>
+   <div class="card"><div class="muted">미결제</div><div class="n" style="font-size:22px">${won(d.unpaid_total)}</div><div class="muted">${d.unpaid.length}건</div></div></div>
+   ${d.late.length?`<div class="box" style="margin-bottom:12px"><h3>납기 지연</h3>${d.late.map(orow).join('')}</div>`:''}
+   <div class="box" style="margin-bottom:12px"><h3>3일 안 출하</h3>${d.soon.map(orow).join('')||'<div class="empty">없습니다</div>'}</div>
+   ${d.stale_quotes.length?`<div class="box" style="margin-bottom:12px"><h3>보낸 지 7일 넘은 견적 (연락해 보세요)</h3>${d.stale_quotes.map(q=>`<div class="row"><div class="grow"><b>${esc(q.no)}</b> ${esc(q.customer)}<div class="muted">${esc(q.sent_at)} 발송 · ${won(q.total)}</div></div></div>`).join('')}</div>`:''}
+   <div class="box"><h3>곧 마감인 내 업무</h3>${d.tasks.map(t=>`<div class="row"><div class="grow">${esc(t.title)}</div><span class="tag ${t.due<T?'bad':''}">${esc(t.due)}</span></div>`).join('')||'<div class="empty">없습니다</div>'}</div>`);
+  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>openOrder(+b.dataset.o));
+}
+
+/* ---- 견적 ---- */
+async function quotes(){
+  const [qs]=await Promise.all([api('GET','/api/quotes')]);
+  main(`<div class="bar"><h2 style="margin:0">견적</h2><span class="sp"></span><a href="/api/export/quotes.csv"><button class="sm">엑셀(CSV)</button></a><button class="pri" id="new">새 견적</button></div>
+  <div class="box">${qs.map(q=>`<div class="row"><div class="grow"><b>${esc(q.no)}</b> ${esc(q.customer)}<div class="muted">${esc(q.date)} · ${won(q.total)}</div></div>
+   <span class="tag ${q.status==='ordered'?'ok':q.status==='sent'?'warn':''}">${{draft:'작성중',sent:'발송됨',ordered:'주문됨'}[q.status]}</span>
+   <a href="/print/quote/${q.id}" target="_blank"><button class="sm">인쇄</button></a>
+   ${q.status!=='ordered'?`<button class="sm" data-m="${q.id}">메일</button><button class="sm pri" data-ord="${q.id}">주문으로</button><button class="sm" data-e="${q.id}">수정</button>`:''}
+   ${q.status==='draft'?`<button class="sm bad" data-d="${q.id}">삭제</button>`:''}</div>`).join('')||'<div class="empty">견적이 없습니다. 새 견적을 만들어 보세요.</div>'}</div>`);
+  $('#new').onclick=()=>quoteForm();
+  const by=id=>qs.find(q=>q.id===+id);
+  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>quoteForm(by(b.dataset.e)));
+  document.querySelectorAll('[data-ord]').forEach(b=>b.onclick=()=>orderForm(by(b.dataset.ord)));
+  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(await confirmBox('이 견적을 지울까요?'))run(async()=>{await api('DELETE','/api/quotes/'+b.dataset.d);quotes()})});
+  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=async()=>{const q=by(b.dataset.m);if(await confirmBox(`${q.customer}에 견적 ${q.no} 메일을 보낼까요?`))run(async()=>{const r=await api('POST',`/api/quotes/${q.id}/mail`);toast(r.to+' 로 보냈습니다');quotes()})});
+}
+async function quoteForm(q){
+  const [cs,its]=await Promise.all([api('GET','/api/customers'),api('GET','/api/items')]);
+  let lines=q?q.lines.map(l=>({...l})):[];
+  modal(`<h3>${q?'견적 수정 '+esc(q.no):'새 견적'}</h3><form><label>거래처 *</label><select name="c" required><option value="">선택</option>${cs.map(c=>`<option value="${c.id}" ${q&&q.customer_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+   <label>품목 추가</label><select id="add"><option value="">품목 선택 (또는 아래 직접 입력)</option>${its.map(i=>`<option value="${i.id}">${esc(i.name)} · ${won(i.price)}</option>`).join('')}<option value="-">직접 입력…</option></select>
+   <div class="scroll"><table><tbody id="ls"></tbody></table></div><p id="sum" style="text-align:right;font-weight:700"></p><label>비고</label><textarea name="note" rows="2">${esc(q?.note||'')}</textarea>
+   <div class="acts"><button type="button" class="cancel">취소</button><button class="pri">저장</button></div></form>`,(o,close)=>{
+    const draw=()=>{
+      $('#ls',o).innerHTML=lines.map((l,i)=>`<tr><td><input data-i="${i}" data-k="name" value="${esc(l.name)}" aria-label="품목명" style="min-width:120px"></td><td><input data-i="${i}" data-k="qty" type="number" step="any" min="0" value="${esc(l.qty)}" aria-label="수량" style="width:80px"></td><td><input data-i="${i}" data-k="price" type="number" min="0" value="${esc(l.price)}" aria-label="단가" style="width:100px"></td><td><button type="button" class="sm bad" data-x="${i}" aria-label="삭제">×</button></td></tr>`).join('');
+      const s=lines.reduce((a,l)=>a+Math.round((+l.qty||0)*(+l.price||0)),0),v=Math.floor((s+5)/10);
+      $('#sum',o).textContent=`공급가액 ${won(s)} + 부가세 ${won(v)} = ${won(s+v)} (최종 금액은 저장 시 서버가 계산)`;
+      $('#ls',o).querySelectorAll('input').forEach(inp=>inp.oninput=()=>{lines[+inp.dataset.i][inp.dataset.k]=inp.value;const s=lines.reduce((a,l)=>a+Math.round((+l.qty||0)*(+l.price||0)),0),v=Math.floor((s+5)/10);$('#sum',o).textContent=`공급가액 ${won(s)} + 부가세 ${won(v)} = ${won(s+v)} (최종 금액은 저장 시 서버가 계산)`});
+      $('#ls',o).querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{lines.splice(+b.dataset.x,1);draw()});
+    };
+    $('#add',o).onchange=e=>{const v=e.target.value;if(!v)return;const it=its.find(i=>String(i.id)===v);lines.push(it?{item_id:it.id,name:it.name,unit:it.unit,qty:1,price:it.price}:{name:'',qty:1,price:0});e.target.value='';draw()};
+    $('.cancel',o).onclick=close;draw();
+    $('form',o).onsubmit=async e=>{e.preventDefault();const f=e.target;const ok=await run(async()=>{const b={customer_id:+f.c.value,note:f.note.value,lines:lines.map(l=>({item_id:l.item_id,name:l.name,unit:l.unit,qty:l.qty,price:l.price}))};q?await api('PUT','/api/quotes/'+q.id,b):await api('POST','/api/quotes',b);return true});if(ok){close();quotes()}};
+  });
+}
+function orderForm(q){
+  const fields=[{k:'due',label:'납기일(출하 예정)',type:'date',req:1},{k:'ship_addr',label:'배송지',req:1},{k:'hours',label:'예상 작업시간(시간)',type:'number',def:8,req:1},{k:'memo',label:'특이사항',type:'area'},{k:'paid',label:'결제 완료',type:'check'}];
+  formModal(`${q.no} → 주문으로`,fields,null,async v=>{
+    const b={quote_id:q.id,due:v.due,ship_addr:v.ship_addr,hours:v.hours,memo:v.memo,paid:v.paid};
+    try{await api('POST','/api/orders',b)}catch(e){
+      if(e.code==='biz_doc'&&await confirmBox(e.message+' 계속 진행할까요?'))await api('POST','/api/orders',{...b,force:true});else throw e}
+    toast('주문이 등록되었습니다');tab='orders';shell();
+  },'주문 등록');
+}
+
+/* ---- 주문 ---- */
+let showDone=false;
+async function orders(){
+  const os=await api('GET','/api/orders');T=T||(await api('GET','/api/today')).today;
+  const list=os.filter(o=>showDone||!o.done_at);
+  main(`<div class="bar"><h2 style="margin:0">주문</h2><span class="sp"></span><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="sd" ${showDone?'checked':''}>완료 포함</label>${me.role!=='field'?'<a href="/api/export/orders.csv"><button class="sm">엑셀(CSV)</button></a>':''}</div>
+   <div class="box">${list.map(o=>`<div class="row"><div class="grow"><b>${esc(o.no)}</b> ${esc(o.customer)}<div class="muted">납기 ${esc(o.due)} · ${esc(o.stage)} · ${won(o.total)}</div></div>${o.paid?'':'<span class="tag warn">미결제</span>'}${lateTag(o)}<button class="sm" data-o="${o.id}">열기</button></div>`).join('')||'<div class="empty">주문이 없습니다. 견적에서 &lsquo;주문으로&rsquo;를 누르세요.</div>'}</div>`);
+  $('#sd').onchange=e=>{showDone=e.target.checked;orders()};
+  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>openOrder(+b.dataset.o));
+}
+async function openOrder(id){
+  const o=(await api('GET','/api/orders')).find(x=>x.id===id);if(!o)return;
+  const st=cfg.stages,ci=st.indexOf(o.stage),office=me.role!=='field';
+  modal(`<h3>${esc(o.no)} · ${esc(o.customer)} ${lateTag(o)}</h3>
+   <label>공정</label><div class="chips">${st.map((s,i)=>`<button data-s="${esc(s)}" class="${i===ci?'cur':i<ci?'past':''}">${esc(s)}</button>`).join('')}</div>
+   <div class="grid2"><div><label>납기일</label>${esc(o.due)}</div><div><label>결제</label>${o.paid?'완료':'<b>미결제</b>'}</div><div><label>배송지</label>${esc(o.ship_addr)}</div><div><label>예상 작업시간</label>${esc(o.hours)}시간 (${esc(o.start)} 시작)</div></div>
+   <label>특이사항</label><div>${esc(o.memo)||'<span class="muted">없음</span>'}</div>
+   <label>품목</label><table><tbody>${o.lines.map(l=>`<tr><td>${esc(l.name)}</td><td class="n">${esc(l.qty)} ${esc(l.unit)}</td><td class="n">${won(l.amount)}</td></tr>`).join('')}<tr><td colspan="2" class="n"><b>합계(부가세 포함)</b></td><td class="n"><b>${won(o.total)}</b></td></tr></tbody></table>
+   <label>작업 파일</label>${o.files.map(f=>`<div class="row"><a class="grow" href="/api/files/${f.id}">${esc(f.name)}</a><span class="muted">${Math.ceil(f.size/1024)}KB</span>${office?`<button class="sm bad" data-f="${f.id}">삭제</button>`:''}</div>`).join('')||'<div class="muted">첨부 없음</div>'}
+   ${office?'<input type="file" id="up" style="margin-top:8px">':''}
+   <div class="acts"><a href="/print/order/${o.id}" target="_blank"><button type="button">작업지시서 인쇄</button></a>${office?'<button type="button" id="ed">수정</button>':''}${me.role==='admin'&&ci===0?'<button type="button" class="bad" id="rm">주문 삭제</button>':''}<button type="button" class="pri" id="cl">닫기</button></div>`,(m,close)=>{
+    $('#cl',m).onclick=close;
+    const reload=()=>{close();openOrder(id);refreshBG()};
+    m.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>run(async()=>{if(b.dataset.s===st[st.length-1]&&!await confirmBox('출하완료로 처리할까요?'))return;await api('PUT',`/api/orders/${id}/stage`,{stage:b.dataset.s});reload()}));
+    m.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>run(async()=>{await api('DELETE','/api/files/'+b.dataset.f);reload()}));
+    const up=$('#up',m);if(up)up.onchange=()=>run(async()=>{const f=up.files[0];if(!f)return;const r=await fetch(`/api/orders/${id}/files`,{method:'POST',headers:{'X-Filename':encodeURIComponent(f.name)},body:f});const d=await r.json();if(!r.ok)throw new Error(d.error);toast('올렸습니다');reload()});
+    const ed=$('#ed',m);if(ed)ed.onclick=()=>{close();formModal('주문 수정',[{k:'due',label:'납기일',type:'date',req:1},{k:'start',label:'시작일',type:'date',req:1},{k:'ship_addr',label:'배송지',req:1},{k:'hours',label:'예상 작업시간(시간)',type:'number',req:1},{k:'memo',label:'특이사항',type:'area'},{k:'paid',label:'결제 완료',type:'check'}],o,async v=>{await api('PUT','/api/orders/'+id,v);refreshBG()})};
+    const rm=$('#rm',m);if(rm)rm.onclick=async()=>{if(await confirmBox('이 주문을 지울까요? (견적은 작성중으로 돌아갑니다)'))run(async()=>{await api('DELETE','/api/orders/'+id);close();refreshBG()})};
+  });
+}
+const refreshBG=()=>run(()=>VIEWS[tab]());
+
+/* ---- 현장 ---- */
+async function field(){
+  const os=(await api('GET','/api/orders')).filter(o=>!o.done_at);T=T||(await api('GET','/api/today')).today;const st=cfg.stages.slice(0,-1);
+  main(`<h2>현장 작업지시</h2><div class="kan">${st.map(s=>{const js=os.filter(o=>o.stage===s);return `<section class="col"><h3>${esc(s)} <span class="muted">${js.length}</span></h3>${js.map(o=>`<div class="job ${o.due<T?'late':''}"><div class="t">${esc(o.customer)}</div><div class="muted">${esc(o.no)} · 납기 <b>${esc(o.due)}</b> ${lateTag(o)}</div><div>${o.lines.map(l=>esc(l.name)+' '+esc(l.qty)+esc(l.unit)).join(', ')}</div>${o.memo?`<div class="tag warn" style="margin-top:4px;white-space:normal">${esc(o.memo)}</div>`:''}<div class="muted">파일 ${o.files.length}개</div><button data-o="${o.id}">자세히·파일</button><button class="pri" data-n="${o.id}">다음 단계: ${esc(cfg.stages[cfg.stages.indexOf(o.stage)+1])} →</button></div>`).join('')||'<div class="muted">없음</div>'}</section>`}).join('')}</div>`);
+  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>openOrder(+b.dataset.o));
+  document.querySelectorAll('[data-n]').forEach(b=>b.onclick=async()=>{const o=os.find(x=>x.id===+b.dataset.n),nx=cfg.stages[cfg.stages.indexOf(o.stage)+1];if(nx===cfg.stages.at(-1)&&!await confirmBox(`${o.customer} ${o.no} 을(를) 출하완료로 처리할까요?`))return;run(async()=>{await api('PUT',`/api/orders/${o.id}/stage`,{stage:nx});field()})});
+}
+
+/* ---- 캘린더 ---- */
+async function calendar(){
+  const os=await api('GET','/api/orders');T=T||(await api('GET','/api/today')).today;if(!cal)cal=T.slice(0,7);
+  const [y,m]=cal.split('-').map(Number),first=new Date(Date.UTC(y,m-1,1)),start=addDays(first.toISOString().slice(0,10),-first.getUTCDay());
+  const cells=[];for(let i=0;i<42;i++){const d=addDays(start,i);if(i>=35&&d.slice(0,7)!==cal)break;cells.push(d)}
+  const nav=n=>{const d=new Date(Date.UTC(y,m-1+n,1));cal=d.toISOString().slice(0,7);calendar()};
+  main(`<div class="bar"><button id="pv" aria-label="이전 달">‹</button><h2 style="margin:0">${y}년 ${m}월 출하</h2><button id="nx" aria-label="다음 달">›</button><span class="sp"></span><button class="sm" id="tt">오늘</button></div>
+  <div class="cal">${'일월화수목금토'.split('').map(x=>`<div class="h">${x}</div>`).join('')}${cells.map(d=>{const js=os.filter(o=>o.due===d);return `<div class="${d===T?'today':''} ${d.slice(0,7)!==cal?'out':''}"><span class="d">${+d.slice(8)}</span>${js.slice(0,3).map(o=>`<button class="chip ${o.done_at?'ok':o.due<T?'bad':''}" data-o="${o.id}">${esc(o.customer)}</button>`).join('')}${js.length>3?`<span class="muted">+${js.length-3}</span>`:''}</div>`}).join('')}</div>`);
+  $('#pv').onclick=()=>nav(-1);$('#nx').onclick=()=>nav(1);$('#tt').onclick=()=>{cal=T.slice(0,7);calendar()};
+  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>openOrder(+b.dataset.o));
+}
+
+/* ---- 부하 ---- */
+async function load(){
+  const r=await api('GET','/api/load?days=28');T=T||(await api('GET','/api/today')).today;const mx=Math.max(r.capacity*1.2,...r.days.map(d=>d.hours)),n=r.days.length,end=r.days[n-1].date;
+  main(`<h2>일 부하</h2><p class="muted">주문의 예상 작업시간을 시작~납기 사이 평일에 고르게 나눈 값입니다. 점선은 하루 작업 가능 시간(${r.capacity}시간). 빨간 막대는 넘치는 날 — 납기나 시작일을 옮겨 보세요.</p>
+   <div class="box scroll"><div class="hist">${r.days.map(d=>`<div class="b ${d.weekend?'we':''} ${d.over?'over':''}" style="height:${d.hours/mx*100}%" title="${d.date} ${d.hours}시간"></div>`).join('')}<div class="cap" style="bottom:${r.capacity/mx*100}%"></div></div><div class="axis">${r.days.map(d=>`<span>${+d.date.slice(8)}</span>`).join('')}</div></div>
+   <h3 style="margin:16px 0 8px">주문별 일정</h3><div class="box scroll"><div class="gantt">${r.orders.map(o=>{const a=Math.max(0,dd(T,o.start)),b=Math.min(n-1,Math.max(0,dd(T,o.due)));return `<div class="gr"><div class="muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(o.no)}">${esc(o.customer)}</div><div class="gg" style="grid-template-columns:repeat(${n},1fr)"><div class="gb ${o.due<T?'late':''}" style="grid-column:${a+1}/${b+2}" title="${esc(o.start)}~${esc(o.due)} ${esc(o.hours)}시간"></div></div></div>`}).join('')||'<div class="empty">진행 중인 주문이 없습니다</div>'}</div></div>`);
+}
+
+/* ---- 업무 ---- */
+let tf='all';
+async function tasks(){
+  const ts=await api('GET','/api/tasks');T=T||(await api('GET','/api/today')).today;const col=n=>(cfg.categories.find(c=>c.name===n)||{color:'#8a93a3'}).color;
+  const list=ts.filter(t=>tf==='all'||(tf==='mine'?!t.shared||t.owner===me.name:t.shared));
+  main(`<div class="bar"><h2 style="margin:0">업무</h2><span class="sp"></span><select id="tf" style="width:auto" aria-label="보기"><option value="all">전체</option><option value="mine">내 것</option><option value="shared">팀 공유</option></select><button class="pri" id="new">할 일 추가</button></div>
+   <div class="box">${list.map(t=>`<div class="row"><input type="checkbox" data-c="${t.id}" ${t.done?'checked':''} aria-label="완료"><div class="grow" style="${t.done?'text-decoration:line-through;opacity:.6':''}"><span class="dot" style="background:${esc(col(t.category))}"></span>${esc(t.title)}<div class="muted">${esc(t.category)} ${t.shared?'· 팀 공유 · '+esc(t.owner):''}</div></div>${t.due?`<span class="tag ${!t.done&&t.due<T?'bad':''}">${esc(t.due)}</span>`:''}${t.owner===me.name||me.role==='admin'?`<button class="sm" data-e="${t.id}">수정</button><button class="sm bad" data-d="${t.id}" aria-label="삭제">×</button>`:''}</div>`).join('')||'<div class="empty">할 일이 없습니다</div>'}</div>`);
+  $('#tf').value=tf;$('#tf').onchange=e=>{tf=e.target.value;tasks()};
+  const fields=[{k:'title',label:'할 일',req:1},{k:'due',label:'기한',type:'date'},{k:'category',label:'분류',type:'select',opts:['',...cfg.categories.map(c=>c.name)]},{k:'shared',label:'팀에 공유',type:'check'}];
+  $('#new').onclick=()=>formModal('할 일 추가',fields,null,async v=>{await api('POST','/api/tasks',v);tasks()});
+  document.querySelectorAll('[data-c]').forEach(c=>c.onchange=()=>run(async()=>{await api('PUT','/api/tasks/'+c.dataset.c,{done:c.checked});tasks()}));
+  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>formModal('할 일 수정',fields,ts.find(t=>t.id===+b.dataset.e),async v=>{await api('PUT','/api/tasks/'+b.dataset.e,v);tasks()}));
+  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>run(async()=>{await api('DELETE','/api/tasks/'+b.dataset.d);tasks()}));
+}
+
+/* ---- 거래처·품목 ---- */
+async function base(){
+  const [cs,its]=await Promise.all([api('GET','/api/customers'),api('GET','/api/items')]);
+  const cf=[{k:'name',label:'거래처명',req:1},{k:'email',label:'이메일(견적 발송용)',type:'email'},{k:'phone',label:'전화'},{k:'biz_doc',label:'사업자등록증 확인함',type:'check'},{k:'memo',label:'메모',type:'area'}];
+  const itf=[{k:'code',label:'품번'},{k:'name',label:'품목명',req:1},{k:'unit',label:'단위',type:'select',opts:cfg.units||['EA']},{k:'price',label:'기본 단가(원)',type:'number',req:1}];
+  main(`<div class="bar"><h2 style="margin:0">거래처</h2><span class="sp"></span><a href="/api/export/customers.csv"><button class="sm">CSV</button></a><button class="pri" id="nc">거래처 추가</button></div>
+   <div class="box" style="margin-bottom:20px">${cs.map(c=>`<div class="row"><div class="grow"><b>${esc(c.name)}</b><div class="muted">${esc(c.email)} ${esc(c.phone)}</div></div>${c.biz_doc?'<span class="tag ok">사업자등록증 확인</span>':'<span class="tag warn">등록증 미확인</span>'}<button class="sm" data-ec="${c.id}">수정</button><button class="sm bad" data-dc="${c.id}" aria-label="삭제">×</button></div>`).join('')||'<div class="empty">거래처를 추가하세요</div>'}</div>
+   <div class="bar"><h2 style="margin:0">품목</h2><span class="sp"></span><a href="/api/export/items.csv"><button class="sm">CSV</button></a><button class="pri" id="ni">품목 추가</button></div>
+   <div class="box">${its.map(i=>`<div class="row"><div class="grow"><b>${esc(i.name)}</b> <span class="muted">${esc(i.code)}</span></div><span>${won(i.price)} / ${esc(i.unit)}</span><button class="sm" data-ei="${i.id}">수정</button><button class="sm bad" data-di="${i.id}" aria-label="삭제">×</button></div>`).join('')||'<div class="empty">품목을 추가하세요</div>'}</div>`);
+  const norm=v=>({...v,biz_doc:v.biz_doc?1:0});
+  $('#nc').onclick=()=>formModal('거래처 추가',cf,null,async v=>{await api('POST','/api/customers',norm(v));base()});
+  $('#ni').onclick=()=>formModal('품목 추가',itf,null,async v=>{await api('POST','/api/items',v);base()});
+  document.querySelectorAll('[data-ec]').forEach(b=>b.onclick=()=>formModal('거래처 수정',cf,cs.find(c=>c.id===+b.dataset.ec),async v=>{await api('PUT','/api/customers/'+b.dataset.ec,norm(v));base()}));
+  document.querySelectorAll('[data-ei]').forEach(b=>b.onclick=()=>formModal('품목 수정',itf,its.find(i=>i.id===+b.dataset.ei),async v=>{await api('PUT','/api/items/'+b.dataset.ei,v);base()}));
+  document.querySelectorAll('[data-dc]').forEach(b=>b.onclick=async()=>{if(await confirmBox('이 거래처를 지울까요?'))run(async()=>{await api('DELETE','/api/customers/'+b.dataset.dc);base()})});
+  document.querySelectorAll('[data-di]').forEach(b=>b.onclick=async()=>{if(await confirmBox('이 품목을 지울까요?'))run(async()=>{await api('DELETE','/api/items/'+b.dataset.di);base()})});
+}
+
+/* ---- 개선요청 ---- */
+async function fb(){
+  const l=await api('GET','/api/feedback');
+  main(`<h2>개선요청함</h2><p class="muted">쓰다가 불편한 점, 있었으면 하는 기능을 적어 주세요. 담당자가 확인하고 상태를 바꿉니다.</p>
+   <form class="box" style="margin-bottom:16px"><textarea name="t" rows="3" required placeholder="예: 업무 목록을 분류별 색으로 구분해 주세요"></textarea><div class="acts" style="margin-top:8px;display:flex;justify-content:flex-end"><button class="pri">보내기</button></div></form>
+   <div class="box">${l.map(x=>`<div class="row"><div class="grow">${esc(x.text)}<div class="muted">${esc(x.who)} · ${esc(x.at)}</div></div>${me.role!=='field'?`<select data-s="${x.id}" style="width:auto" aria-label="상태">${['접수','진행','완료'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}</select>`:`<span class="tag">${esc(x.status)}</span>`}</div>`).join('')||'<div class="empty">아직 없습니다</div>'}</div>`);
+  $('form').onsubmit=e=>{e.preventDefault();run(async()=>{await api('POST','/api/feedback',{text:e.target.t.value});toast('접수했습니다');fb()})};
+  document.querySelectorAll('[data-s]').forEach(s=>s.onchange=()=>run(()=>api('PUT','/api/feedback/'+s.dataset.s,{status:s.value})));
+}
+
+/* ---- 설정 ---- */
+async function settings(){
+  const [us]=await Promise.all([api('GET','/api/users')]);cfg=await api('GET','/api/config');const sm=cfg.smtp||{};
+  main(`<h2>설정</h2><form class="box" id="cf" style="margin-bottom:16px"><h3>회사·공정</h3><label>회사명</label><input name="company" value="${esc(cfg.company)}" required>
+   <label>하루 작업 가능 시간(전체 인원 합)</label><input name="cap" type="number" min="1" step="any" value="${esc(cfg.daily_capacity)}"><label>공정 단계 (한 줄에 하나, 마지막이 완료 단계)</label><textarea name="stages" rows="7">${esc(cfg.stages.join('\n'))}</textarea>
+   <h3 style="margin-top:16px">견적 메일 발송 (회사 메일 서버)</h3><p class="muted">네이버·구글 등은 앱 비밀번호가 필요합니다. 비워 두면 메일 기능만 꺼집니다.</p>
+   <div class="grid2"><div><label>서버 주소</label><input name="host" value="${esc(sm.host)}" placeholder="smtp.naver.com"></div><div><label>포트</label><input name="port" type="number" value="${esc(sm.port||587)}"></div><div><label>계정</label><input name="user" value="${esc(sm.user)}"></div><div><label>비밀번호 ${sm.has_password?'(저장됨)':''}</label><input name="pw" type="password" placeholder="바꿀 때만 입력" autocomplete="new-password"></div></div><label>보내는 주소</label><input name="from" value="${esc(sm.from)}" placeholder="sales@회사.kr">
+   <div class="acts" style="display:flex;justify-content:flex-end;margin-top:12px"><button class="pri">저장</button></div></form>
+   <div class="box" style="margin-bottom:16px"><div class="bar"><h3>사용자</h3><span class="sp"></span><button class="pri sm" id="nu">사용자 추가</button></div>${us.map(u=>`<div class="row"><div class="grow"><b>${esc(u.name)}</b></div><select data-r="${u.id}" style="width:auto" aria-label="권한">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${k===u.role?'selected':''}>${v}</option>`).join('')}</select><button class="sm" data-p="${u.id}">PIN 변경</button><button class="sm bad" data-x="${u.id}" aria-label="삭제">×</button></div>`).join('')}</div>
+   <div class="box"><h3>백업</h3><p class="muted">서버가 하루 한 번 data/backup 폴더에 자동 백업합니다(14개 보관). 중요한 날에는 아래에서 직접 받아 두세요. 이 폴더를 USB·NAS에도 복사해 두는 것을 권장합니다.</p><a href="/api/backup"><button>데이터 백업 파일 받기</button></a></div>`);
+  $('#cf').onsubmit=e=>{e.preventDefault();const f=e.target;run(async()=>{await api('PUT','/api/config',{company:f.company.value,daily_capacity:f.cap.value,stages:f.stages.value.split('\n'),smtp:{host:f.host.value,port:f.port.value,user:f.user.value,password:f.pw.value,from:f.from.value}});toast('저장했습니다');cfg=await api('GET','/api/config');shell()})};
+  $('#nu').onclick=()=>formModal('사용자 추가',[{k:'name',label:'이름',req:1},{k:'pin',label:'PIN (4자리 이상)',type:'password',req:1},{k:'role',label:'권한',type:'select',opts:Object.entries(ROLE).map(([v,t])=>({v,t})),def:'field'}],null,async v=>{await api('POST','/api/users',v);settings()});
+  document.querySelectorAll('[data-r]').forEach(s=>s.onchange=()=>run(async()=>{try{await api('PUT','/api/users/'+s.dataset.r,{role:s.value})}finally{settings()}}));
+  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>formModal('PIN 변경',[{k:'pin',label:'새 PIN (4자리 이상)',type:'password',req:1}],null,async v=>{await api('PUT','/api/users/'+b.dataset.p,v);toast('변경했습니다')}));
+  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(await confirmBox('이 사용자를 지울까요?'))run(async()=>{await api('DELETE','/api/users/'+b.dataset.x);settings()})});
+}
+const VIEWS={today,quotes,orders,field,cal:calendar,load,tasks,base,fb,set:settings};
+boot();
+</script>
+</body>
+</html>
